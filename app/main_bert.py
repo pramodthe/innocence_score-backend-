@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import pathlib, pickle, pdfplumber, spacy, torch, tempfile, re
+import pathlib, pickle, pdfplumber, spacy, torch, tempfile, re, io
 
 app = FastAPI(title="Innocence-Claim API", version="1.0")
 
@@ -15,10 +15,23 @@ app.add_middleware(
 
 # ---------- load pipeline ----------
 pkl_path = pathlib.Path(__file__).parent.parent / "models" / "innocence_pipeline.pkl"
-with open(pkl_path, "rb") as f:
-    bundle = pickle.load(f)
-tokenizer, model = bundle["tokenizer"], bundle["model"]
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Custom unpickler to handle CUDA tensors on CPU
+class CPU_Unpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name == '_load_from_bytes':
+            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+        else:
+            return super().find_class(module, name)
+
+with open(pkl_path, "rb") as f:
+    if device.type == "cpu":
+        bundle = CPU_Unpickler(f).load()
+    else:
+        bundle = pickle.load(f)
+        
+tokenizer, model = bundle["tokenizer"], bundle["model"]
 model.to(device)
 nlp = spacy.load("en_core_web_sm")
 

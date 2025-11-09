@@ -17,12 +17,12 @@ RUN python -m spacy download en_core_web_sm
 # Copy application code
 COPY . .
 
-# Download the ML model at build time
-RUN python download_model.py
+# Make start script executable
+RUN chmod +x start.sh
 
 # Expose port
 ENV PORT=8080
 EXPOSE 8080
 
-# Run the application
-CMD uvicorn app.main_bert:app --host 0.0.0.0 --port $PORT
+# Run the application with startup script
+CMD ["./start.sh"]
