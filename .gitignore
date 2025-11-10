@@ -1,6 +1,11 @@
 # Model files
 models/innocence_pipeline.pkl
 
+# Hugging Face
+.huggingface/
+flagged/
+*.ckpt
+
 # Python
 __pycache__/
 *.py[cod]
@@ -29,6 +34,7 @@ wheels/
 # IDE
 .vscode/
 .idea/
+.kiro/
 *.swp
 *.swo
 *~

@@ -4,12 +4,14 @@ import pathlib, pickle, pdfplumber, spacy, torch, tempfile, re, io
 
 app = FastAPI(title="Innocence-Claim API", version="1.0")
 
-# ---------- CORS for Next.js ----------
+# ---------- CORS Configuration ----------
+# Configured for Hugging Face Spaces - allows all origins for API accessibility
+# Hugging Face Spaces URLs follow pattern: https://{username}-{space-name}.hf.space
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # restrict in production
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],  # Allow all origins for public API access
+    allow_credentials=False,  # Must be False when allow_origins is ["*"]
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
